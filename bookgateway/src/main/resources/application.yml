@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: bookgateway
+  cloud:
+    gateway:
+      routes:
+        - id: spms-service
+          uri: lb://SPMS
+          predicates:
+            - Path=/**
+          filters:
+            - RewritePath=/(?<segment>.*), /$\{segment}
+        - id: order-service
+          uri: lb://ORDER-SERVICE
+          predicates:
+            - Path=/bookstore/**
+          filters:
+            - RewritePath=/bookstore/(?<segment>.*), /$\{segment}
+        - id: book
+          uri: lb://BOOKSTORE
+          predicates:
+            - Path=/**
+          filters:
+            - RewritePath=/(?<segment>.*), /$\{segment}   
+    discovery:
+      locator:
+        enabled: true
+
+server:
+  port: 8080
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka
+    register-with-eureka: true
+    fetch-registry: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+
