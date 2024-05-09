@@ -3,25 +3,39 @@ spring:
     name: bookgateway
   cloud:
     gateway:
-      routes:
-        - id: spms-service
-          uri: lb://SPMS
-          predicates:
-            - Path=/**
-          filters:
-            - RewritePath=/(?<segment>.*), /$\{segment}
-        - id: order-service
-          uri: lb://ORDER-SERVICE
-          predicates:
-            - Path=/bookstore/**
-          filters:
-            - RewritePath=/bookstore/(?<segment>.*), /$\{segment}
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:4200"  # List all origins or use "*" for all
+            allowedMethods: 
+              - GET
+              - POST
+              - PUT
+              - DELETE
+            allowedHeaders:
+              - Content-Type
+              - Authorization
+            allowCredentials: true
+            maxAge: 3600
+      routes:        
         - id: book
           uri: lb://BOOKSTORE
           predicates:
-            - Path=/**
+            - Path=/store/**
           filters:
-            - RewritePath=/(?<segment>.*), /$\{segment}   
+            - RewritePath=/store/(?<segment>.*), /$\{segment}
+        - id: bookauth-service
+          uri: lb://BOOKAUTH
+          predicates:
+            - Path=/auth/**
+          filters:
+            - RewritePath=/auth/(?<segment>.*), /$\{segment}  
+        - id: spms-service
+          uri: lb://SPMS
+          predicates:
+            - Path=/spms/**
+          filters:
+            - RewritePath=/spms/(?<segment>.*), /$\{segment}
     discovery:
       locator:
         enabled: true
