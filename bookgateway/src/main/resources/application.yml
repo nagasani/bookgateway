@@ -15,6 +15,9 @@ spring:
             allowedHeaders:
               - Content-Type
               - Authorization
+              - Accept
+              - Origin
+              - X-Requested-With
             allowCredentials: true
             maxAge: 3600
       routes:        
@@ -30,6 +33,7 @@ spring:
             - Path=/auth/**
           filters:
             - RewritePath=/auth/(?<segment>.*), /$\{segment}  
+            - RemoveDuplicateCorsHeadersFilter
         - id: spms-service
           uri: lb://SPMS
           predicates:
